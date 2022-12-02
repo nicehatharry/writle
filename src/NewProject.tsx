@@ -1,14 +1,14 @@
 import React, { useState, SyntheticEvent } from 'react'
+import { getProjectKey, PROJECTS_LIST_KEY } from './App'
 
 const UNSAFE_CHARS = /[^a-zA-Z0-9:',"\s]/g
 
-export const NewProject = ({ showEditor }: { showEditor: boolean }) => {
+export const NewProject = () => {
   const [title, setTitle] = useState('')
   const [wordCount, setWordCount] = useState('')
   const [targetDate, setTargetDate] = useState('')
 
   const handleTitleChange = (e: SyntheticEvent<HTMLInputElement>) => {
-    console.log(e.currentTarget.value)
     const sanitizedInput = e.currentTarget.value.replace(UNSAFE_CHARS, '')
     setTitle(sanitizedInput)
   }
@@ -20,17 +20,30 @@ export const NewProject = ({ showEditor }: { showEditor: boolean }) => {
     console.log('date', e.currentTarget.value)
     setTargetDate(e.currentTarget.value)
   }
-  return showEditor ? (
+
+  const handleSave = () => {
+    console.log('Handling save')
+    if (
+      title.length > 0 &&
+      parseInt(wordCount) > 1 &&
+      new Date(targetDate) > new Date()
+    ) {
+      localStorage.setItem(
+        getProjectKey(title),
+        JSON.stringify({ title, wordCount, targetDate }),
+      )
+      const prevProjects = JSON.parse(
+        localStorage.getItem(PROJECTS_LIST_KEY) ?? '[]',
+      )
+      localStorage.setItem(
+        PROJECTS_LIST_KEY,
+        JSON.stringify([...prevProjects, title]),
+      )
+    }
+  }
+
+  return (
     <>
-      <div>
-        Project: <strong>{title}</strong>
-      </div>
-      <div>
-        Words: <strong>{wordCount}</strong>
-      </div>
-      <div>
-        finished by: <strong>{targetDate}</strong>
-      </div>
       <div>
         <div>
           Title: <input onChange={handleTitleChange} value={title} />
@@ -47,9 +60,10 @@ export const NewProject = ({ showEditor }: { showEditor: boolean }) => {
             value={targetDate}
           />
         </div>
+        <div>
+          <button onClick={handleSave}>Save Project</button>
+        </div>
       </div>
     </>
-  ) : (
-    <></>
   )
 }
