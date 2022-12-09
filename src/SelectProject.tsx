@@ -1,15 +1,11 @@
 import React, { SyntheticEvent, useEffect, useState } from 'react'
-import { CurrentProject } from './CurrentProject'
-import { NewProject } from './NewProject'
+import { useNavigate } from 'react-router-dom'
+import { PROJECTS_LIST_KEY } from './constants'
 
-export const PROJECTS_LIST_KEY = 'writle-projects'
-export const DEFAULT_TITLE = 'Untitled'
-export const getProjectKey = (project: string) => `writle-project-${project}`
-
-export const App = () => {
+export const SelectProject = () => {
   const [projects, setProjects] = useState<string[]>([])
-  const [project, setProject] = useState<string>('')
   const storedProjects = localStorage.getItem(PROJECTS_LIST_KEY)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (storedProjects) {
@@ -19,8 +15,8 @@ export const App = () => {
 
   const handleProjectChange = (e: SyntheticEvent<HTMLSelectElement>) => {
     const value = e.currentTarget.value
-    console.log('Changing project to', value)
-    setProject(value)
+    if (value === 'new') navigate('/new-project')
+    else navigate(`/project/${value}`)
   }
 
   const formattedProjects =
@@ -45,10 +41,6 @@ export const App = () => {
           </option>
         ))}
       </select>
-      <div>{project === 'new' && <NewProject />}</div>
-      {project !== 'new' && project !== '' && (
-        <CurrentProject selectedProject={project} />
-      )}
     </>
   )
 }

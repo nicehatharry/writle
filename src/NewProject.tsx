@@ -1,12 +1,17 @@
 import React, { useState, SyntheticEvent } from 'react'
-import { getProjectKey, PROJECTS_LIST_KEY } from './App'
-
-const UNSAFE_CHARS = /[^a-zA-Z0-9:',"\s]/g
+import { useNavigate } from 'react-router-dom'
+import {
+  UNSAFE_CHARS,
+  PROJECTS_LIST_KEY,
+  DEFAULT_PROJECT_DATA,
+} from './constants'
+import { getProjectKey } from './utils'
 
 export const NewProject = () => {
   const [title, setTitle] = useState('')
   const [wordCount, setWordCount] = useState('')
   const [targetDate, setTargetDate] = useState('')
+  const navigate = useNavigate()
 
   const handleTitleChange = (e: SyntheticEvent<HTMLInputElement>) => {
     const sanitizedInput = e.currentTarget.value.replace(UNSAFE_CHARS, '')
@@ -30,7 +35,12 @@ export const NewProject = () => {
     ) {
       localStorage.setItem(
         getProjectKey(title),
-        JSON.stringify({ title, wordCount, targetDate }),
+        JSON.stringify({
+          ...DEFAULT_PROJECT_DATA,
+          title,
+          wordCount,
+          targetDate,
+        }),
       )
       const prevProjects = JSON.parse(
         localStorage.getItem(PROJECTS_LIST_KEY) ?? '[]',
@@ -40,6 +50,7 @@ export const NewProject = () => {
         JSON.stringify([...prevProjects, title]),
       )
     }
+    navigate('/')
   }
 
   return (
